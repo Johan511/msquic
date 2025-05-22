@@ -754,7 +754,10 @@ QuicStreamCopyFromSendRequests(
             Event.COPIED_TO_FRAME.BytesCopiedBeforeNextEvent = &BytesCopiedBeforeNextEvent;
             Event.COPIED_TO_FRAME.ClientSendContext = Req->ClientContext;
             QuicStreamIndicateEvent(Stream, &Event);
-            Req->BytesToBeCopiedBeforeNextCopiedToFrameEvent = BytesCopiedBeforeNextEvent;
+            if(BytesCopiedBeforeNextEvent != (uint64_t)(-2))
+                Req->BytesToBeCopiedBeforeNextCopiedToFrameEvent = BytesCopiedBeforeNextEvent;
+            else
+                Stream->SendFlags = 0;
         } else {
             Req->BytesToBeCopiedBeforeNextCopiedToFrameEvent -= CopyLength;
         }
