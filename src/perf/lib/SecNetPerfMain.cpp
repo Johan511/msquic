@@ -283,6 +283,8 @@ QuicMainStart(
             PerfDefaultCongestionControl = QUIC_CONGESTION_CONTROL_ALGORITHM_CUBIC;
         } else if (IsValue(CcName, "bbr")) {
             PerfDefaultCongestionControl = QUIC_CONGESTION_CONTROL_ALGORITHM_BBR;
+        } else if(IsValue(CcName, "bbrv3")) {
+            PerfDefaultCongestionControl = QUIC_CONGESTION_CONTROL_ALGORITHM_BBRV3;
         } else {
             WriteOutput("Failed to parse congestion control algorithm[%s], use cubic as default\n", CcName);
         }

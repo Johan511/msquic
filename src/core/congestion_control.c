@@ -40,5 +40,7 @@ QuicCongestionControlInitialize(
     case QUIC_CONGESTION_CONTROL_ALGORITHM_BBR:
         BbrCongestionControlInitialize(Cc, Settings);
         break;
+    case QUIC_CONGESTION_CONTROL_ALGORITHM_BBRV3:
+        BbrV3CongestionControlInitialize(Cc, Settings);
     }
 }
