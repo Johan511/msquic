@@ -370,7 +370,7 @@ if ($MergeDataFiles) {
     $FormatResults = [System.Collections.Generic.List[FormattedResult]]::new()
 
     # Load all json files in the output directory.
-    $DataFiles = Get-ChildItem -Path $OutputDir -Filter "*.json"
+    $DataFiles = Get-ChildItem -Recurse -Path $OutputDir -Filter "*.json"
     $DataFiles | ForEach-Object {
         $Data = Get-Content $_ | ConvertFrom-Json
 

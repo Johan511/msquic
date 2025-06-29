@@ -2,23 +2,21 @@ name: WAN Perf
 
 on:
   workflow_dispatch:
-#  push:
-#    branches:
-#    - main
-#    paths:
-#    - .github/workflows/wan-perf.yml
-#    - src/core/*
-#    - src/platform/*
-#    - src/perf/*
-#  pull_request:
-#    branches:
-#    - main
-#    paths:
-#    - .github/workflows/wan-perf.yml
-#    - src/core/*
-#    - src/platform/*
-#    - src/perf/*
-#    - submodules/quictls/*
+  push:
+    paths:
+    - .github/workflows/wan-perf.yml
+    - src/core/*
+    - src/platform/*
+    - src/perf/*
+  pull_request:
+    branches:
+    - main
+    paths:
+    - .github/workflows/wan-perf.yml
+    - src/core/*
+    - src/platform/*
+    - src/perf/*
+    - submodules/quictls/*
 concurrency:
   # Cancel any workflow currently in progress for the same PR.
   # Allow running concurrently with any other commits.
@@ -66,7 +64,7 @@ jobs:
       pacing: 1
       reorder: "(0,1000)"
       delay: "(0,5,10)"
-      congestionControl: "(\"cubic\", \"bbr\")"
+      congestionControl: "(\"cubic\", \"bbr\", \"bbrv3\")"
       loss: "(0,1000,10000)"
     strategy:
       fail-fast: false
@@ -102,13 +100,13 @@ jobs:
     - name: Upload Results
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: data
+        name: data.${{ matrix.rate }}mbps.${{ matrix.rtt }}ms.${{ matrix.queueRatio }}
         path: artifacts/PerfDataResults/windows/x64_Release_schannel/WAN/*.json
-    - name: Upload Logs
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-      with:
-        name: ${{ format('logs.{0}mbps.{1}ms', matrix.rate, matrix.rtt) }}
-        path: artifacts/logs/wanperf/*.etl
+    # - name: Upload Logs
+    #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    #   with:
+    #     name: logs.${{ matrix.rate }}mbps.${{ matrix.rtt }}ms.${{ matrix.queueRatio }}
+    #     path: artifacts/logs/wanperf/*.etl
   merge-data:
     permissions: write-all
     name: Merge Results
@@ -121,8 +119,7 @@ jobs:
         fetch-depth: 0
     - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
       with:
-        name: data
-        path: artifacts/PerfDataResults/windows/x64_Release_schannel/WAN
+        path: artifacts/PerfDataResults/windows/x64_Release_schannel/WAN/
     - name: Merge Data Files
       shell: pwsh
       run: scripts/emulated-performance.ps1 -MergeDataFiles
