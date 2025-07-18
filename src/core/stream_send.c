@@ -1057,6 +1057,8 @@ QuicStreamWriteStreamFrames(
             if (Sack && Stream->RecoveryNextOffset == Sack->Low) {
                 Stream->RecoveryNextOffset += Sack->Count;
             }
+            Stream->RecoveryEndOffset = CXPLAT_MAX(
+                    Stream->RecoveryEndOffset, Stream->RecoveryNextOffset);
         }
 
         if (Stream->NextSendOffset < Right) {
@@ -1362,6 +1364,8 @@ QuicStreamOnLoss(
         UpdatedRecoveryWindow = TRUE;
     }
 
+    CXPLAT_DBG_ASSERT(Stream->RecoveryNextOffset <= Stream->RecoveryEndOffset);
+
     if (UpdatedRecoveryWindow) {
 
         QuicTraceLogStreamVerbose(
@@ -1499,8 +1503,11 @@ QuicStreamOnAck(
                 Stream->RecoveryNextOffset = Stream->UnAckedOffset;
             }
             if (Stream->RecoveryEndOffset < Stream->UnAckedOffset) {
+                Stream->RecoveryEndOffset = Stream->UnAckedOffset;
                 Stream->Flags.InRecovery = FALSE;
             }
+            CXPLAT_DBG_ASSERT(
+                Stream->RecoveryNextOffset <= Stream->RecoveryEndOffset);
         }
 
         //
@@ -1583,6 +1590,8 @@ QuicStreamOnAck(
             if (Stream->RecoveryNextOffset >= Sack->Low &&
                 Stream->RecoveryNextOffset < Sack->Low + Sack->Count) {
                 Stream->RecoveryNextOffset = Sack->Low + Sack->Count;
+                Stream->RecoveryEndOffset = CXPLAT_MAX(
+                    Stream->RecoveryEndOffset, Stream->RecoveryNextOffset);
             }
         }
     }
